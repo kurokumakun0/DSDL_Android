@@ -1,24 +1,19 @@
 package tw.edu.ntu.csie.kurokuma.sync;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-import com.github.nkzawa.emitter.Emitter;
-
-import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
+import java.net.URISyntaxException;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
@@ -38,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSocket.connect();
 
         setContentView(R.layout.activity_main);
+
+        Utils.full_screen_mode(getWindow().getDecorView());
 
         View mContentView = findViewById(R.id.fullscreen_content);
 
@@ -117,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Socket mSocket;
     {
         try {
-            mSocket = IO.socket("http://192.168.2.100:3000/");
+            mSocket = IO.socket("http://140.112.248.84:3000/");
             System.out.println("connect");
         } catch (URISyntaxException e) {
             System.out.println("URISyntaxException:"+e);
