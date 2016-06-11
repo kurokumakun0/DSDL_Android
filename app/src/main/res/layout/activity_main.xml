@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    tools:context="tw.edu.ntu.csie.kurokuma.socketiotest.FullscreenActivity">
+    tools:context="tw.edu.ntu.csie.kurokuma.sync.MainActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="send message"
+        android:text="@string/shoot"
         android:textColor="#33b5e5"
         android:textSize="50sp"
         android:textStyle="bold" />
@@ -28,6 +28,16 @@
         android:layout_marginTop="10dp"
         android:textSize="20sp"
         android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/URL_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:text="change URL"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        android:textColor="@android:color/holo_red_dark"/>
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
