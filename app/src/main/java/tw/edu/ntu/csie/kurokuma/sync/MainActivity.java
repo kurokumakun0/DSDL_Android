@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         sManager.unregisterListener(this);
         super.onStop();
+
+        mSocket.disconnect();
+        mSocket.off("connectOK", onConnectOK);
     }
 
     @Override
@@ -106,16 +109,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        mSocket.disconnect();
-        mSocket.off("connectOK", onConnectOK);
     }
 
     private Socket mSocket;
     {
         try {
             // TODO: add your IP here
-            mSocket = IO.socket("http://140.112.248.84:3000/");
+            mSocket = IO.socket("http://192.168.43.122:3000/");
             System.out.println("connect");
         } catch (URISyntaxException e) {
             System.out.println("URISyntaxException:"+e);
@@ -142,4 +142,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
         }
     };
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            Utils.full_screen_mode(getWindow().getDecorView());}
+    }
 }
