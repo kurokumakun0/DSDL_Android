@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         try {
             // TODO: add your IP here
-            mSocket = IO.socket("http://140.112.248.84:3000/");
+            mSocket = IO.socket("http://169.254.61.168:3000/");
             System.out.println("connect");
         } catch (URISyntaxException e) {
             System.out.println("URISyntaxException:"+e);

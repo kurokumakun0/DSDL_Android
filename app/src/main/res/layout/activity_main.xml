@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="send message"
+        android:text="@string/shoot"
         android:textColor="#33b5e5"
         android:textSize="50sp"
         android:textStyle="bold" />
