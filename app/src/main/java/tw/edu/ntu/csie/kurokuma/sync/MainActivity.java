@@ -18,19 +18,22 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
     private TextView tv;
     private Button URL_button;
-    String URL = "http://192.168.43.122:3000/";
+    String URL = "http://192.168.137.1:3000/";
     private SensorManager sManager;
     Sensor accelerometer;
     Sensor magnetometer;
     float[] mGravity;
     float[] mGeomagnetic;
     String[] ZYXvalue = new String[3];
+    Timer timer = new Timer(true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,13 +203,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             MainActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mSocket.emit("X", ZYXvalue[2]);
-                    mSocket.emit("Y", ZYXvalue[1]);
-                    mSocket.emit("Z", ZYXvalue[0]);
+                    timer.schedule(new MyTimerTask(), 50, 50);
                 }
             });
         }
     };
+
+    public class MyTimerTask extends TimerTask
+    {
+        public void run()
+        {
+            mSocket.emit("X", ZYXvalue[2]);
+            mSocket.emit("Y", ZYXvalue[1]);
+            //mSocket.emit("Z", ZYXvalue[0]);
+        }
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
