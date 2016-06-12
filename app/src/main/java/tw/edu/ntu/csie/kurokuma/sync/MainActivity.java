@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView tv;
     private Button URL_button;
-    String URL = "http://192.168.137.1:3000/";
+    String URL;
     private SensorManager sManager;
     Sensor accelerometer;
     Sensor magnetometer;
@@ -44,13 +44,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Utils.full_screen_mode(getWindow().getDecorView());
 
         View mContentView = findViewById(R.id.fullscreen_content);
-
-        mContentView.setOnClickListener(new View.OnClickListener() {
+        if( mContentView != null )
+            mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptSend(view);
             }
         });
+
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.137.1:3000/");
 
         tv = (TextView) findViewById(R.id.sensorValue);
         URL_button = (Button) findViewById(R.id.URL_btn);
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                             URL = input.getText().toString();
                             URL_button.setText(URL);
+                            getPreferences(MODE_PRIVATE).edit().putString("connection", URL).apply();
                             try {
                                 mSocket = IO.socket(URL);
                             }catch (URISyntaxException e)   {
