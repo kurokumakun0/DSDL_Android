@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView tv;
     private Button URL_button;
-    String URL;
+    String URL = null;
     private SensorManager sManager;
     Sensor accelerometer;
     Sensor magnetometer;
@@ -52,7 +52,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.137.1:3000/");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://140.112.248.84");
+
+        try {
+            mSocket = IO.socket(URL);
+        }catch (URISyntaxException e)   {
+            e.printStackTrace();
+        }
+        mSocket.on("connectOK", onConnectOK);
+        mSocket.connect();
 
         tv = (TextView) findViewById(R.id.sensorValue);
         URL_button = (Button) findViewById(R.id.URL_btn);
@@ -123,8 +131,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         sManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
 
-        mSocket.on("connectOK", onConnectOK);
-        mSocket.connect();
+        if( mSocket != null ) {
+            mSocket.on("connectOK", onConnectOK);
+            mSocket.connect();
+        }
     }
 
     protected void onPause() {
@@ -138,10 +148,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sManager.unregisterListener(this);
         super.onStop();
 
-        if( mSocket.connected() )   {
-            mSocket.disconnect();
+        if( mSocket != null )   {
+            if( mSocket.connected() )   {
+                mSocket.disconnect();
+            }
+            mSocket.off("connectOK", onConnectOK);
         }
-        mSocket.off("connectOK", onConnectOK);
     }
 
     @Override
@@ -184,7 +196,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         try {
             // TODO: add your IP here
-            mSocket = IO.socket(URL);
+            if( URL != null )
+                mSocket = IO.socket(URL);
 
             //mSocket = IO.socket("http://169.254.61.168:3000/");
             System.out.println("connect");
