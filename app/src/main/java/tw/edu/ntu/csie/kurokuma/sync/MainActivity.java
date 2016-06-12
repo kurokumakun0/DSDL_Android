@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
+        mSocket.disconnect();
+        mSocket.off("connectOK", onConnectOK);
     }
 
     @Override
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         sManager.unregisterListener(this);
         super.onStop();
+        timer.cancel();
 
         if( mSocket.connected() )   {
             mSocket.disconnect();
@@ -175,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
+        timer.cancel();
     }
 
     private Socket mSocket;
@@ -203,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             MainActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    timer.schedule(new MyTimerTask(), 50, 50);
+                    timer.schedule(new MyTimerTask(), 80, 80);
                 }
             });
         }
