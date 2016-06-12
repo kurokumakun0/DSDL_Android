@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://140.112.248.84");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://140.112.248.84:3000/");
 
         try {
             mSocket = IO.socket(URL);
