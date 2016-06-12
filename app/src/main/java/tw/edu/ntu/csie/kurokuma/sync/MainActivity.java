@@ -23,6 +23,7 @@ import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
+    private Socket mSocket;
 
     private TextView tv;
     private Button URL_button;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://140.112.248.84:3000/");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.137.1:3000/");
 
         try {
             mSocket = IO.socket(URL);
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
+        timer.cancel();
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
     }
@@ -195,22 +197,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onDestroy();
         timer.cancel();
     }
-
-    private Socket mSocket;
-    {
-        try {
-            // TODO: add your IP here
-            if( URL != null )
-                mSocket = IO.socket(URL);
-
-            //mSocket = IO.socket("http://169.254.61.168:3000/");
-            System.out.println("connect");
-        } catch (URISyntaxException e) {
-            System.out.println("URISyntaxException:"+e);
-        }
-    }
-
-    //TODO:Receive OK from server, if didn't receive, disconnect.
 
     public void attemptSend(View v) {
         String message = "kuma";
