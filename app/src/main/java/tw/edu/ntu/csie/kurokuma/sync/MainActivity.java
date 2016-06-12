@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView tv;
     private Button URL_button;
-    String URL = "http://192.168.137.1:3000/";
+    String URL = null;
     private SensorManager sManager;
     Sensor accelerometer;
     Sensor magnetometer;
@@ -44,13 +44,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Utils.full_screen_mode(getWindow().getDecorView());
 
         View mContentView = findViewById(R.id.fullscreen_content);
-
-        mContentView.setOnClickListener(new View.OnClickListener() {
+        if( mContentView != null )
+            mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptSend(view);
             }
         });
+
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://140.112.248.84:3000/");
+
+        try {
+            mSocket = IO.socket(URL);
+        }catch (URISyntaxException e)   {
+            e.printStackTrace();
+        }
+        mSocket.on("connectOK", onConnectOK);
+        mSocket.connect();
 
         tv = (TextView) findViewById(R.id.sensorValue);
         URL_button = (Button) findViewById(R.id.URL_btn);
@@ -81,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                             URL = input.getText().toString();
                             URL_button.setText(URL);
+                            getPreferences(MODE_PRIVATE).edit().putString("connection", URL).apply();
                             try {
                                 mSocket = IO.socket(URL);
                             }catch (URISyntaxException e)   {
@@ -120,8 +131,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         sManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
 
-        mSocket.on("connectOK", onConnectOK);
-        mSocket.connect();
+        if( mSocket != null ) {
+            mSocket.on("connectOK", onConnectOK);
+            mSocket.connect();
+        }
     }
 
     protected void onPause() {
@@ -138,10 +151,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onStop();
         timer.cancel();
 
-        if( mSocket.connected() )   {
-            mSocket.disconnect();
+        if( mSocket != null )   {
+            if( mSocket.connected() )   {
+                mSocket.disconnect();
+            }
+            mSocket.off("connectOK", onConnectOK);
         }
-        mSocket.off("connectOK", onConnectOK);
     }
 
     @Override
@@ -185,7 +200,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         try {
             // TODO: add your IP here
-            mSocket = IO.socket(URL);
+            if( URL != null )
+                mSocket = IO.socket(URL);
 
             //mSocket = IO.socket("http://169.254.61.168:3000/");
             System.out.println("connect");
