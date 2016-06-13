@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String[] ZYXvalue = new String[3];
     Timer timer;
     Vibrator myVibrator;
+    Boolean menu_state = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void attemptSend(View v) {
-        String message = "kuma";
+        String message = "fire";
+        if(menu_state){
+            message = "start";
+            menu_state = false;
+        }
         mSocket.emit("message", message);
     }
 
@@ -218,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         myVibrator.vibrate(300);
                     } else if (message.equals("die")) {
                         myVibrator.vibrate(1000);
+                        menu_state = true;
                     }
                 }
             });
