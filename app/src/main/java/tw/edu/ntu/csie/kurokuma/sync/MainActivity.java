@@ -19,9 +19,6 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.net.URISyntaxException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -92,11 +89,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
-                            if( URL.equals(input.getText().toString()) )    {
-                                dialog.dismiss();
-                                return;
-                            }
 
                             URL = input.getText().toString();
                             URL_button.setText(URL);
