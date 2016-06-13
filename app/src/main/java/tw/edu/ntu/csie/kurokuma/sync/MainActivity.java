@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
         }
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.2.100:3000/");
 
         try {
             mSocket = IO.socket(URL);
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
-        timer.cancel();
+        if(!menu_state){timer.cancel();}
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
     }
