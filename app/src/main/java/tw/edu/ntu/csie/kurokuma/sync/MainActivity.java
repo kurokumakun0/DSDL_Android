@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float[] mGravity;
     float[] mGeomagnetic;
     String[] ZYXvalue = new String[3];
-    Timer timer = new Timer(true);
+    Timer timer;
     Vibrator myVibrator;
 
     @Override
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         sManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         sManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
-
+        
         if( mSocket != null ) {
             mSocket.on("connectOK", onConnectOK);
             mSocket.connect();
@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     String message = (String)args[0];
 
                     if (message.equals("OK")) {
+                        timer = new Timer(true);
                         timer.schedule(new MyTimerTask(), 80, 80);
                     } else if (message.equals("hit")) {
                         myVibrator.vibrate(300);
