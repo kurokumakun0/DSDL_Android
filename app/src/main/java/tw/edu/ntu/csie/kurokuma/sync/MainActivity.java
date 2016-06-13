@@ -1,11 +1,13 @@
 package tw.edu.ntu.csie.kurokuma.sync;
 
+import android.app.Service;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +18,9 @@ import android.widget.TextView;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.Timer;
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float[] mGeomagnetic;
     String[] ZYXvalue = new String[3];
     Timer timer = new Timer(true);
+    Vibrator myVibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.137.1:3000/");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
 
         try {
             mSocket = IO.socket(URL);
@@ -62,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         mSocket.on("connectOK", onConnectOK);
         mSocket.connect();
+
+        myVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
 
         tv = (TextView) findViewById(R.id.sensorValue);
         URL_button = (Button) findViewById(R.id.URL_btn);
@@ -209,7 +217,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             MainActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    timer.schedule(new MyTimerTask(), 80, 80);
+                    String message = (String)args[0];
+
+                    if (message.equals("OK")) {
+                        timer.schedule(new MyTimerTask(), 80, 80);
+                    } else if (message.equals("hit")) {
+                        myVibrator.vibrate(300);
+                    } else if (message.equals("die")) {
+                        myVibrator.vibrate(1000);
+                    }
                 }
             });
         }
