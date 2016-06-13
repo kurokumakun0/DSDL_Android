@@ -56,6 +56,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 attemptSend(view);
             }
         });
+        View UltraHitButton = findViewById(R.id.ultra_hit);
+        if( UltraHitButton != null )    {
+            UltraHitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ultraAttack();
+                }
+            });
+        }
 
         URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
 
@@ -152,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         sManager.unregisterListener(this);
         super.onStop();
-        timer.cancel();
+        //timer.cancel();
 
         if( mSocket != null )   {
             if( mSocket.connected() )   {
@@ -196,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        timer.cancel();
+        //timer.cancel();
     }
 
     public void attemptSend(View v) {
@@ -206,6 +215,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             menu_state = false;
         }
         mSocket.emit("message", message);
+    }
+
+    public void ultraAttack()   {
+        String message = "ultra";
+        if(menu_state){
+            message = "start";
+            menu_state = false;
+        }
+        mSocket.emit("ultra", message);
     }
 
     private Emitter.Listener onConnectOK = new Emitter.Listener() {
