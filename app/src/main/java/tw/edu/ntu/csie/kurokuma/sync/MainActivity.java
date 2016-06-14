@@ -11,8 +11,10 @@ import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Timer timer;
     Vibrator myVibrator;
     Boolean menu_state = true;
+    ImageView gameover;
+    ViewGroup container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
         }
+
+        container = (ViewGroup) findViewById(R.id.container);
+        gameover = (ImageView) findViewById(R.id.gameover);
 
         URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
 
@@ -151,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
-        timer.cancel();
+        if( timer != null )
+            timer.cancel();
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
     }
@@ -242,6 +250,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     } else if (message.equals("die")) {
                         myVibrator.vibrate(1000);
                         menu_state = true;
+
+                        gameover.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                gameover.setOnClickListener(null);
+                                gameover.setVisibility(View.GONE);
+                                URL_button.setVisibility(View.VISIBLE);
+                            }
+                        });
+                        gameover.setVisibility(View.VISIBLE);
+                        URL_button.setVisibility(View.INVISIBLE);
                     }
                 }
             });
