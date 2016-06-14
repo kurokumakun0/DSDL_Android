@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             });
         }
-
+        
         container = (ViewGroup) findViewById(R.id.container);
         gameover = (ImageView) findViewById(R.id.gameover);
 
@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
-        if( timer != null )
-            timer.cancel();
+        if(!menu_state){timer.cancel();}
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
     }
