@@ -16,27 +16,21 @@
         android:weightSum="1"
         android:visibility="visible"
         android:id="@+id/linearLayout">
+        <ImageSwitcher
+            android:id="@+id/bomb_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
         <TextView
             android:id="@+id/fullscreen_content"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight=".5"
+            android:layout_weight="1"
             android:gravity="center"
             android:keepScreenOn="true"
+            android:layout_marginEnd="0dp"
             android:text="@string/shoot"
             android:textColor="#33b5e5"
-            android:textSize="50sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/ultra_hit"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight=".5"
-            android:gravity="center"
-            android:keepScreenOn="true"
-            android:background="#e5333c"
-            android:text="ultra_hit"
-            android:textColor="@color/colorAccent"
             android:textSize="50sp"
             android:textStyle="bold" />
     </LinearLayout>

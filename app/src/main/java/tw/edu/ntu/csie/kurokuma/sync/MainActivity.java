@@ -7,15 +7,21 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -26,7 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener{
+public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory{
     private Socket mSocket;
 
     private TextView tv;
@@ -44,6 +50,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ImageView gameover;
     ViewGroup container;
 
+    // about shining Bomb button
+    ImageSwitcher imageSwitcher;
+    int[] images = new int[]{ R.mipmap.bomb_botton, R.mipmap.bomb_botton_end, R.mipmap.bomb_botton_end, R.mipmap.bomb_botton };
+    int interval = 250, index = 0;
+    boolean isRunning = true;
+    Handler handler = new Handler();
+    Runnable shining_task = new Runnable() {
+        @Override
+        public void run() {
+            if (isRunning) {
+                index++;
+                index = index % images.length;
+                //Log.d("Intro Screen", "Change Image " + index);
+                imageSwitcher.setImageResource(images[index]);
+                handler.postDelayed(this, interval);
+            }
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,16 +86,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 attemptSend(view);
             }
         });
-        View UltraHitButton = findViewById(R.id.ultra_hit);
+        /*ImageSwitcher UltraHitButton = (ImageSwitcher) findViewById(R.id.bomb_btn);
         if( UltraHitButton != null )    {
+            Animation shiningAnimation = new AlphaAnimation(0, 1);
+            shiningAnimation.setRepeatMode(Animation.REVERSE);
+            // infinite repeat
+            shiningAnimation.setRepeatCount(-1);
+            shiningAnimation.setDuration(1000);
+
+            AnimationSet animationSet = new AnimationSet(false);
+            animationSet.addAnimation(shiningAnimation);
+
+            UltraHitButton.startAnimation(animationSet);
+
             UltraHitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ultraAttack();
                 }
             });
-        }
-        
+        }*/
+
+        startAnimatedBackground();
+
         container = (ViewGroup) findViewById(R.id.container);
         gameover = (ImageView) findViewById(R.id.gameover);
 
@@ -142,6 +181,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         magnetometer = sManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
+    private void startAnimatedBackground() {
+        Animation aniIn = AnimationUtils.loadAnimation(this,
+                android.R.anim.fade_in);
+        aniIn.setDuration(interval);
+        Animation aniOut = AnimationUtils.loadAnimation(this,
+                android.R.anim.fade_out);
+        aniOut.setDuration(interval);
+
+        imageSwitcher = (ImageSwitcher) findViewById(R.id.bomb_btn);
+        if( imageSwitcher != null ) {
+
+            imageSwitcher.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ultraAttack();
+                }
+            });
+
+            imageSwitcher.setInAnimation(aniIn);
+            imageSwitcher.setOutAnimation(aniOut);
+            imageSwitcher.setFactory(MainActivity.this);
+            imageSwitcher.setImageResource(images[index]);
+
+            handler.postDelayed(shining_task, interval);
+        }
+    }
+
+    @Override
+    public View makeView() {
+        ImageView imageView = new ImageView(this);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setLayoutParams(new ImageSwitcher.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        return imageView;
+    }
+
     @Override
     protected void onResume()
     {
@@ -153,14 +228,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSocket.on("connectOK", onConnectOK);
             mSocket.connect();
         }
+
+        isRunning = true;
+        handler.postDelayed(shining_task, interval);
     }
 
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
-        if(!menu_state){timer.cancel();}
+        if( timer != null ) {
+            timer.cancel();
+        }
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
+        isRunning = false;
+        handler.removeCallbacks(shining_task);
     }
 
     @Override
@@ -168,7 +250,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         sManager.unregisterListener(this);
         super.onStop();
-        //timer.cancel();
 
         if( mSocket != null )   {
             if( mSocket.connected() )   {
@@ -212,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //timer.cancel();
     }
 
     public void attemptSend(View v) {
