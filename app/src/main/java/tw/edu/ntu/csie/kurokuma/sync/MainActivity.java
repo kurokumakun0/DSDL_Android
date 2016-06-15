@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -28,6 +29,8 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ImageSwitcher imageSwitcher;
     int[] images = new int[]{ R.mipmap.bomb_botton, R.mipmap.bomb_botton_end, R.mipmap.bomb_botton_end, R.mipmap.bomb_botton };
     int interval = 250, index = 0;
-    boolean isRunning = true;
+    boolean isRunning = false;
     Handler handler = new Handler();
     Runnable shining_task = new Runnable() {
         @Override
@@ -69,6 +72,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    // weapon list related
+    ListView weapon_list;
+    List<String> weapon_array = new ArrayList<>();
+    String[] array = new String[] {"bullet", "magic", "BigFire", "Ultimate"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,31 +93,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 attemptSend(view);
             }
         });
-        /*ImageSwitcher UltraHitButton = (ImageSwitcher) findViewById(R.id.bomb_btn);
-        if( UltraHitButton != null )    {
-            Animation shiningAnimation = new AlphaAnimation(0, 1);
-            shiningAnimation.setRepeatMode(Animation.REVERSE);
-            // infinite repeat
-            shiningAnimation.setRepeatCount(-1);
-            shiningAnimation.setDuration(1000);
 
-            AnimationSet animationSet = new AnimationSet(false);
-            animationSet.addAnimation(shiningAnimation);
-
-            UltraHitButton.startAnimation(animationSet);
-
-            UltraHitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ultraAttack();
-                }
-            });
-        }*/
-
-        startAnimatedBackground();
+        setBombButton();
 
         container = (ViewGroup) findViewById(R.id.container);
         gameover = (ImageView) findViewById(R.id.gameover);
+        weapon_list = (ListView) findViewById(R.id.weapon_list);
+
+        //for( int i = 0 ; i < array.length ; i ++ )
+        //    weapon_array.add(array[i]);
+        //weapon_list.setAdapter(new ScrollAdapter(weapon_array));
+        //weapon_list.setBackground(new SemiCircleDrawable(Color.CYAN, SemiCircleDrawable.Direction.LEFT));
+        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, array));
+        weapon_list.setDivider(null);
+        weapon_list.setSelectionFromTop(CircularArrayAdapter.HALF_MAX_VALUE, 0);
 
         URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
 
@@ -181,31 +177,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         magnetometer = sManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
-    private void startAnimatedBackground() {
-        Animation aniIn = AnimationUtils.loadAnimation(this,
-                android.R.anim.fade_in);
-        aniIn.setDuration(interval);
-        Animation aniOut = AnimationUtils.loadAnimation(this,
-                android.R.anim.fade_out);
-        aniOut.setDuration(interval);
-
+    private void setBombButton()    {
         imageSwitcher = (ImageSwitcher) findViewById(R.id.bomb_btn);
         if( imageSwitcher != null ) {
-
-            imageSwitcher.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ultraAttack();
-                }
-            });
+            Animation aniIn = AnimationUtils.loadAnimation(this,
+                    android.R.anim.fade_in);
+            aniIn.setDuration(interval);
+            Animation aniOut = AnimationUtils.loadAnimation(this,
+                    android.R.anim.fade_out);
+            aniOut.setDuration(interval);
 
             imageSwitcher.setInAnimation(aniIn);
             imageSwitcher.setOutAnimation(aniOut);
             imageSwitcher.setFactory(MainActivity.this);
-            imageSwitcher.setImageResource(images[index]);
-
-            handler.postDelayed(shining_task, interval);
+            imageSwitcher.setImageResource(images[0]);
         }
+    }
+
+    private void startAnimatedBackground() {
+
+        isRunning = true;
+
+        imageSwitcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ultraAttack();
+                imageSwitcher.setOnClickListener(null);
+                stopAnimation();
+            }
+        });
+        imageSwitcher.setImageResource(images[index]);
+        handler.postDelayed(shining_task, interval);
+    }
+
+    public void stopAnimation() {
+        isRunning = false;
+        handler.removeCallbacks(shining_task);
+        // reset image
+        index = 0;
+        imageSwitcher.setImageResource(images[index]);
     }
 
     @Override
@@ -229,8 +239,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSocket.connect();
         }
 
-        isRunning = true;
-        handler.postDelayed(shining_task, interval);
+        if( isRunning )
+            handler.postDelayed(shining_task, interval);
     }
 
     protected void onPause() {
@@ -241,8 +251,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
-        isRunning = false;
-        handler.removeCallbacks(shining_task);
+
+        if( isRunning )
+            handler.removeCallbacks(shining_task);
     }
 
     @Override
@@ -340,6 +351,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         });
                         gameover.setVisibility(View.VISIBLE);
                         URL_button.setVisibility(View.INVISIBLE);
+
+                        // stop shining bomb button
+                        stopAnimation();
+                    } else if( message.equals("filled") ) {
+
+                        //start shining bomb button
+                        startAnimatedBackground();
                     }
                 }
             });
