@@ -58,7 +58,7 @@ public class CircularRecycleAdapter extends RecyclerView.Adapter<CircularRecycle
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         //mRecyclerview.invalidate();
-        //holder.WeaponName.getY();
+        //holder.WeaponTextView.getY();
 
 
         LinearLayoutManager layoutManager = ((LinearLayoutManager)mRecyclerview.getLayoutManager());

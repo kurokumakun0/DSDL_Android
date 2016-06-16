@@ -39,7 +39,7 @@ import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory, DrawerLayout.DrawerListener{
-    private Socket mSocket;
+    public static Socket mSocket;
 
     private TextView tv;
     private Button URL_button;
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // weapon list related
     ListView weapon_list;
     List<String> weapon_array = new ArrayList<>();
-    String[] array = new String[] {"bullet", "magic", "BigFire", "Ultimate"};
+    String[] WeaponNameList = new String[] {"Bullet", "Ray", "Lightning", "Ultimate"};
     DrawerLayout drawer_layout;
     FloatingActionButton fab;
 
@@ -127,9 +127,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
         }
 
-        for( int i = 0 ; i < array.length ; i ++ )
-            weapon_array.add(array[i]);
-        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, array, drawer_layout));
+        for(int i = 0; i < WeaponNameList.length ; i ++ )
+            weapon_array.add(WeaponNameList[i]);
+        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, WeaponNameList, drawer_layout));
         weapon_list.setDivider(null);
         weapon_list.setSelectionFromTop(CircularArrayAdapter.HALF_MAX_VALUE, 0);
 
@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    // ============== bomb button ==================
+
     private void startAnimatedBackground() {
 
         isRunning = true;
@@ -251,6 +253,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
         return imageView;
     }
+
+    // ================================================
 
     @Override
     protected void onResume()
@@ -347,6 +351,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             menu_state = false;
         }
         mSocket.emit("ultra", message);
+    }
+
+    public static void Switch_weapon(int Weapon_No)  {
+        mSocket.emit("switch_weapon", Weapon_No);
     }
 
     private Emitter.Listener onConnectOK = new Emitter.Listener() {

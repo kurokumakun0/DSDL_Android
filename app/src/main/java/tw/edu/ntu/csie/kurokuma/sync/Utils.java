@@ -8,6 +8,11 @@ import com.nineoldandroids.view.ViewHelper;
  * Created by tree on 2016/6/7.
  */
 public class Utils {
+
+    public static int WEAPON_BULLET = 0;
+    public static int WEAPON_RAY = 1;
+    public static int WEAPON_LIGHTNING = 2;
+
     public static void full_screen_mode(View decor_view)   {
         if( android.os.Build.VERSION.SDK_INT >= 19 )  {
             decor_view.setSystemUiVisibility(

@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 /**
  * Created by tree on 2016/6/15.
@@ -32,10 +31,10 @@ public class CircularArrayAdapter extends ArrayAdapter<String> {
 
     private static class ViewHolder {
 
-        CustomTextView WeaponName;
+        CustomTextView WeaponTextView;
 
-        public ViewHolder(CustomTextView txtDate){
-            this.WeaponName = txtDate;
+        public ViewHolder(CustomTextView WeaponTextView){
+            this.WeaponTextView = WeaponTextView;
         }
     }
 
@@ -71,17 +70,19 @@ public class CircularArrayAdapter extends ArrayAdapter<String> {
             holder = (ViewHolder) view.getTag();
         }
 
-        String itemViewType = getItem(i % objects.length);
-        //Log.d(TAG, itemViewType + " " + i);
-        SpannableString content = new SpannableString(itemViewType);
+        String WeaponName = getItem(i % objects.length);
+        final int WeaponNo = i%objects.length;
+
+        // Bottom line
+        SpannableString content = new SpannableString(WeaponName);
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-        holder.WeaponName.setText(content);
-        //Log.d("f = ", "" + holder.WeaponName.isFocusable());
-        //Log.d("c = ", "" + holder.WeaponName.isClickable());
-        holder.WeaponName.setOnClickListener(new View.OnClickListener() {
+        holder.WeaponTextView.setText(content);
+        holder.WeaponTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Name = ", ((TextView) v).getText().toString());
+                //Log.d("Name = ", ((TextView) v).getText().toString());
+                Log.d("selected WeaponNo = " + WeaponNo , "");
+                MainActivity.Switch_weapon(WeaponNo);
                 mDrawer.closeDrawer(GravityCompat.END);
             }
         });
