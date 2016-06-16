@@ -5,4 +5,5 @@
     android:layout_height="100dp"
     android:textColor="@android:color/primary_text_dark"
     android:textSize="40sp"
-    android:gravity="center"/>
+    android:gravity="center"
+    android:id="@+id/cTextview"/>

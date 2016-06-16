@@ -9,6 +9,9 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,7 +38,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory{
+public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory, DrawerLayout.DrawerListener{
     private Socket mSocket;
 
     private TextView tv;
@@ -76,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ListView weapon_list;
     List<String> weapon_array = new ArrayList<>();
     String[] array = new String[] {"bullet", "magic", "BigFire", "Ultimate"};
+    DrawerLayout drawer_layout;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +104,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         container = (ViewGroup) findViewById(R.id.container);
         gameover = (ImageView) findViewById(R.id.gameover);
         weapon_list = (ListView) findViewById(R.id.weapon_list);
+        drawer_layout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        //for( int i = 0 ; i < array.length ; i ++ )
-        //    weapon_array.add(array[i]);
-        //weapon_list.setAdapter(new ScrollAdapter(weapon_array));
-        //weapon_list.setBackground(new SemiCircleDrawable(Color.CYAN, SemiCircleDrawable.Direction.LEFT));
-        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, array));
+        drawer_layout.addDrawerListener(this);
+
+        if( fab != null )   {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fab.hide();
+                    drawer_layout.openDrawer(GravityCompat.END);
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if( !drawer_layout.isDrawerOpen(GravityCompat.END) ) {
+                                fab.show();
+                            }
+                        }
+                    }, 500);
+                }
+            });
+        }
+
+        for( int i = 0 ; i < array.length ; i ++ )
+            weapon_array.add(array[i]);
+        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, array, drawer_layout));
         weapon_list.setDivider(null);
         weapon_list.setSelectionFromTop(CircularArrayAdapter.HALF_MAX_VALUE, 0);
 
@@ -296,9 +321,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        tv.setText("Orientation X (Roll) :" + ZYXvalue[2] + "\n" +
-                "Orientation Y (Pitch) :" + ZYXvalue[1] + "\n" +
-                "Orientation Z (Yaw) :" + ZYXvalue[0]);
+        //tv.setText("Orientation X (Roll) :" + ZYXvalue[2] + "\n" +
+        //        "Orientation Y (Pitch) :" + ZYXvalue[1] + "\n" +
+        //        "Orientation Z (Yaw) :" + ZYXvalue[0]);
     }
 
     @Override
@@ -364,6 +389,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    /**
+     *  ================= NavigationDrawer Listener ==================
+     */
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        fab.hide();
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        fab.show();
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
+
+    }
+
+    // ===============================================================
+
     public class MyTimerTask extends TimerTask
     {
         public void run()
@@ -378,5 +428,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         Utils.full_screen_mode(getWindow().getDecorView());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer_layout != null && drawer_layout.isDrawerOpen(GravityCompat.END)) {
+            drawer_layout.closeDrawer(GravityCompat.END);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

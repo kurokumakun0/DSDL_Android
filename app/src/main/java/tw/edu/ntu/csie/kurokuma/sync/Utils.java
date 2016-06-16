@@ -2,6 +2,8 @@ package tw.edu.ntu.csie.kurokuma.sync;
 
 import android.view.View;
 
+import com.nineoldandroids.view.ViewHelper;
+
 /**
  * Created by tree on 2016/6/7.
  */
@@ -23,5 +25,13 @@ public class Utils {
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                             | View.SYSTEM_UI_FLAG_FULLSCREEN); // hide status bar
         }
+    }
+
+    public static float centerX(View view){
+        return ViewHelper.getX(view) + view.getWidth()/2;
+    }
+
+    public static float centerY(View view){
+        return ViewHelper.getY(view) + view.getHeight()/2;
     }
 }
