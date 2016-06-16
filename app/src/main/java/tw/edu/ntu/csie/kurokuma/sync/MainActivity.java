@@ -36,12 +36,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory, DrawerLayout.DrawerListener{
     public static Socket mSocket;
 
     private TextView tv;
+    private TextView tvPlayer;
     private Button URL_button;
     String URL = null;
     private SensorManager sManager;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String[] ZYXvalue = new String[3];
     Timer timer;
     Vibrator myVibrator;
-    Boolean menu_state = true;
+    Boolean menu_state = false;
     ImageView gameover;
     ViewGroup container;
 
@@ -81,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String[] WeaponNameList = new String[] {"Bullet", "Ray", "Lightning", "Ultimate"};
     DrawerLayout drawer_layout;
     FloatingActionButton fab;
+
+    //For player identification
+    String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+    static int player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         weapon_list.setDivider(null);
         weapon_list.setSelectionFromTop(CircularArrayAdapter.HALF_MAX_VALUE, 0);
 
-        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
+        URL = getPreferences(MODE_PRIVATE).getString("connection", "http://192.168.2.100:3000/");
 
         try {
             mSocket = IO.socket(URL);
@@ -141,11 +147,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             e.printStackTrace();
         }
         mSocket.on("connectOK", onConnectOK);
+        mSocket.on(uuid, onConnectOK);
         mSocket.connect();
 
         myVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
 
         tv = (TextView) findViewById(R.id.sensorValue);
+        tvPlayer= (TextView) findViewById(R.id.player);
         URL_button = (Button) findViewById(R.id.URL_btn);
 
         if( URL_button != null )    {
@@ -178,8 +186,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                             mSocket.disconnect();
                             mSocket.off("connectOK", onConnectOK);
+                            mSocket.off(uuid, onConnectOK);
 
                             mSocket.on("connectOK", onConnectOK);
+                            mSocket.on(uuid, onConnectOK);
                             mSocket.connect();
 
                             dialog.dismiss();
@@ -265,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         
         if( mSocket != null ) {
             mSocket.on("connectOK", onConnectOK);
+            mSocket.on(uuid, onConnectOK);
             mSocket.connect();
         }
 
@@ -280,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         mSocket.disconnect();
         mSocket.off("connectOK", onConnectOK);
+        mSocket.off(uuid, onConnectOK);
 
         if( isRunning )
             handler.removeCallbacks(shining_task);
@@ -296,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mSocket.disconnect();
             }
             mSocket.off("connectOK", onConnectOK);
+            mSocket.off(uuid, onConnectOK);
         }
     }
 
@@ -341,7 +354,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             message = "start";
             menu_state = false;
         }
-        mSocket.emit("message", message);
+        //mSocket.emit("message", message);
+        switch (player) {
+            case 1:
+                mSocket.emit("message1", message);
+                break;
+            case 2:
+                mSocket.emit("message2", message);
+                break;
+        }
     }
 
     public void ultraAttack()   {
@@ -350,11 +371,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             message = "start";
             menu_state = false;
         }
-        mSocket.emit("ultra", message);
+        //mSocket.emit("ultra", message);
+        switch (player) {
+            case 1:
+                mSocket.emit("ultra1", message);
+                break;
+            case 2:
+                mSocket.emit("ultra2", message);
+                break;
+        }
     }
 
     public static void Switch_weapon(int Weapon_No)  {
-        mSocket.emit("switch_weapon", Weapon_No);
+        //mSocket.emit("switch_weapon", Weapon_No);
+        switch (player) {
+            case 1:
+                mSocket.emit("switch_weapon1", Weapon_No);
+                break;
+            case 2:
+                mSocket.emit("switch_weapon2", Weapon_No);
+                break;
+        }
     }
 
     private Emitter.Listener onConnectOK = new Emitter.Listener() {
@@ -366,8 +403,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     String message = (String)args[0];
 
                     if (message.equals("OK")) {
+                        mSocket.emit("requestPlayer", uuid);
+                    } else if(message.equals("player1")) {
+                        player = 1;
+                        tvPlayer.setText("Player1");
                         timer = new Timer(true);
                         timer.schedule(new MyTimerTask(), 80, 80);
+                    } else if(message.equals("player2")) {
+                        player = 2;
+                        tvPlayer.setText("Player2");
+                        timer = new Timer(true);
+                        timer.schedule(new MyTimerTask(), 80, 80);
+                    } else if(message.equals("full")) {
+                        player = 0;
+                        tvPlayer.setText("full");
                     } else if (message.equals("hit")) {
                         myVibrator.vibrate(300);
                     } else if (message.equals("die")) {
@@ -426,8 +475,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     {
         public void run()
         {
-            mSocket.emit("X", ZYXvalue[2]);
-            mSocket.emit("Y", ZYXvalue[1]);
+            switch (player) {
+                case 1:
+                    mSocket.emit("X1", ZYXvalue[2]);
+                    mSocket.emit("Y1", ZYXvalue[1]);
+                    break;
+                case 2:
+                    mSocket.emit("X2", ZYXvalue[2]);
+                    mSocket.emit("Y2", ZYXvalue[1]);
+                    break;
+            }
+            //mSocket.emit("X", ZYXvalue[2]);
+            //mSocket.emit("Y", ZYXvalue[1]);
             //mSocket.emit("Z", ZYXvalue[0]);
         }
     }
