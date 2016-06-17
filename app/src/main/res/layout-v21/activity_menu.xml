@@ -24,6 +24,7 @@
             android:paddingTop="10dp"
             android:layout_marginTop="50dp"
             android:onClick="goSinglePlayer"
+            android:transitionName="@string/blue_transitionName"
             fancy:fb_borderColor="#FFFFFF"
             fancy:fb_borderWidth="1dp"
             fancy:fb_defaultColor="#0099cc"

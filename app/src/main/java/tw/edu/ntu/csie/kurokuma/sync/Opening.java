@@ -29,7 +29,7 @@ public class Opening extends AppCompatActivity {
                     main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(main);
                 }
-            }, 5000);
+            }, 4000);
         }
     }
 

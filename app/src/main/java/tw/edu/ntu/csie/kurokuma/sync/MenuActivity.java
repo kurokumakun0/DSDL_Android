@@ -1,12 +1,10 @@
 package tw.edu.ntu.csie.kurokuma.sync;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-
-import com.roger.match.library.MatchTextView;
 
 /**
  * Created by Y.C.Lai on 2016/6/17.
@@ -21,7 +19,17 @@ public class MenuActivity extends AppCompatActivity {
 
     public void goSinglePlayer(View v){
         Intent single = new Intent(MenuActivity.this, MainActivity.class);
-        startActivity(single);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            View sharedView = v;
+            String transitionName = getString(R.string.blue_transitionName);
+
+            ActivityOptions transitionActivityOptions = null;
+            transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(MenuActivity.this, sharedView, transitionName);
+            startActivity(single, transitionActivityOptions.toBundle());
+        }else {
+            startActivity(single);
+        }
     }
 
     public void goMultiplePlayer(View v){

@@ -37,5 +37,5 @@ dependencies {
     }
     compile 'com.github.asyl:ArcAnimator:v1.0.0'
     compile 'com.roger.match.library:library:1.0.1'
-
+    compile 'com.github.medyo:fancybuttons:1.8.1'
 }
