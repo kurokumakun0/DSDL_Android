@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -263,6 +264,7 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
                         player = 2;
                         tvPlayer.setText("Player2");
                     } else if(message.equals("ready")) {
+                        Toast.makeText(MultipleActivity.this, "players are ready", Toast.LENGTH_SHORT).show();
                         timer = new Timer(true);
                         timer.schedule(new MyTimerTask(), 80, 80);
                     } else if(message.equals("checkConnect")) {
