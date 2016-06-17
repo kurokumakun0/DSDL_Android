@@ -69,7 +69,7 @@
             android:src="@drawable/gameover"
             android:scaleType="fitXY"
             android:visibility="gone"
-            android:contentDescription="game over image"/>
+            android:contentDescription="game over image" />
 
         <!-- This FrameLayout insets its children based on system windows using
              android:fitsSystemWindows. -->

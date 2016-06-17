@@ -16,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -229,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 ultraAttack();
-                imageSwitcher.setOnClickListener(null);
                 stopAnimation();
             }
         });
@@ -238,11 +238,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void stopAnimation() {
+        imageSwitcher.setOnClickListener(null);
         isRunning = false;
         handler.removeCallbacks(shining_task);
-        // reset image
+        imageSwitcher.setImageResource(images[0]);
         index = 0;
-        imageSwitcher.setImageResource(images[index]);
     }
 
     @Override
@@ -374,23 +374,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         myVibrator.vibrate(1000);
                         menu_state = true;
 
-                        gameover.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                gameover.setOnClickListener(null);
-                                gameover.setVisibility(View.GONE);
-                                URL_button.setVisibility(View.VISIBLE);
-                            }
-                        });
+                        Animation animation = new AlphaAnimation(0, 1);
+                        animation.setDuration(1000);
+                        gameover.startAnimation(animation);
                         gameover.setVisibility(View.VISIBLE);
                         URL_button.setVisibility(View.INVISIBLE);
+
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                gameover.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        gameover.setOnClickListener(null);
+                                        Animation fadeout = new AlphaAnimation(1, 0);
+                                        fadeout.setDuration(1000);
+                                        gameover.startAnimation(fadeout);
+                                        gameover.setVisibility(View.GONE);
+                                        URL_button.setVisibility(View.VISIBLE);
+                                    }
+                                });
+                            }
+                        }, 3000);
 
                         // stop shining bomb button
                         stopAnimation();
                     } else if( message.equals("filled") ) {
 
-                        //start shining bomb button
-                        startAnimatedBackground();
+                        if( !menu_state ) {  // if player alive
+                            //start shining bomb button
+                            startAnimatedBackground();
+                        }
                     }
                 }
             });
