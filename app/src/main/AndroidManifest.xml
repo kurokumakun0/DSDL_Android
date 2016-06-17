@@ -19,6 +19,14 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape">
+        </activity>
+        <activity
+            android:name=".MultipleActivity"
+            android:screenOrientation="landscape">
+        </activity>
+        <activity
+            android:name=".MenuActivity"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

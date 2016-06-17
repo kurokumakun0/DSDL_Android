@@ -25,7 +25,7 @@ public class Opening extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent main = new Intent(Opening.this, MainActivity.class);
+                    Intent main = new Intent(Opening.this, MenuActivity.class);
                     main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(main);
                 }
