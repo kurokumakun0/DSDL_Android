@@ -15,7 +15,7 @@ import android.widget.TextView;
  */
 public class CustomTextView extends TextView {
 
-    private static final int MAX_INDENT = 200;
+    private static final int MAX_INDENT = 175;
     private static final int MIN_INDENT = 50;
     private static final String TAG = CustomTextView.class.getSimpleName();
 
