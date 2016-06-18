@@ -28,6 +28,7 @@ public class Opening extends AppCompatActivity {
                     Intent main = new Intent(Opening.this, MenuActivity.class);
                     main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(main);
+                    finish();
                 }
             }, 4000);
         }
