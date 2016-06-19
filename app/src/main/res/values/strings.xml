@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sync</string>
+    <string name="app_name">Sync Shooter</string>
     <string name="shoot">Click to Shoot</string>
     <string name="blue_transitionName">CoolTransition</string>
 </resources>

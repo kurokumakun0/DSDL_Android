@@ -1,11 +1,15 @@
 package tw.edu.ntu.csie.kurokuma.sync;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -34,6 +38,7 @@ import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -58,6 +63,10 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
     Boolean menu_state = false;
     ImageView gameover;
 
+    SoundPool soundPool;
+    HashMap<Integer, Integer> soundPoolMap;
+    int soundID = 1;
+
     //For player identification
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     static int player;
@@ -70,11 +79,18 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
 
         Utils.full_screen_mode(getWindow().getDecorView());
 
+        soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
+        soundPoolMap = new HashMap<Integer, Integer>();
+        soundPoolMap.put(soundID, soundPool.load(this, R.raw.shoot, 1));
+        soundPoolMap.put(2, soundPool.load(this, R.raw.hurt, 1));
+        soundPoolMap.put(3, soundPool.load(this, R.raw.die, 1));
+
         View mContentView = findViewById(R.id.fullscreen_content);
         if( mContentView != null )
             mContentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    playSound(1);
                     attemptSend(view);
                 }
             });
@@ -274,8 +290,10 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
                         tvPlayer.setText("full");
                     } else if (message.equals("hit")) {
                         myVibrator.vibrate(300);
+                        playSound(2);
                     } else if (message.equals("die")) {
                         myVibrator.vibrate(1000);
+                        playSound(3);
                         menu_state = true;
 
                         gameover.setOnClickListener(new View.OnClickListener() {
@@ -293,6 +311,18 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
             });
         }
     };
+
+    public void playSound(int num){
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        float curVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        float maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        float leftVolume = curVolume/maxVolume;
+        float rightVolume = curVolume/maxVolume;
+        int priority = 1;
+        int no_loop = 0;
+        float normal_playback_rate = 1f;
+        soundPool.play(num, leftVolume, rightVolume, priority, no_loop, normal_playback_rate);
+    }
 
     public class MyTimerTask extends TimerTask
     {
