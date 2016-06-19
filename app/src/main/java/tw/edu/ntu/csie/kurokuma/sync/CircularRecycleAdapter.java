@@ -21,7 +21,7 @@ public class CircularRecycleAdapter extends RecyclerView.Adapter<CircularRecycle
 
         public ViewHolder(View itemView){
             super(itemView);
-            WeaponName = (CustomTextView) itemView.findViewById(R.id.cTextview);
+            WeaponName = (CustomTextView) itemView.findViewById(R.id.fab);
         }
     }
 

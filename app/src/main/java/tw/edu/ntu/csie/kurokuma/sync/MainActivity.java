@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -39,7 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory, DrawerLayout.DrawerListener{
+public class MainActivity extends AppCompatActivity implements SensorEventListener, ViewSwitcher.ViewFactory, DrawerLayout.DrawerListener, View.OnClickListener{
     public static Socket mSocket;
 
     private TextView tv;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ListView weapon_list;
     List<String> weapon_array = new ArrayList<>();
     String[] WeaponNameList = new String[] {"Bullet", "Ray", "Lightning", "Ultimate"};
-    DrawerLayout drawer_layout;
+    public static DrawerLayout drawer_layout;
     FloatingActionButton fab;
 
     @Override
@@ -130,8 +131,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         for(int i = 0; i < WeaponNameList.length ; i ++ )
             weapon_array.add(WeaponNameList[i]);
-        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, R.layout.weapon_list_item, WeaponNameList, drawer_layout));
-        weapon_list.setDivider(null);
+        weapon_list.setAdapter(new CircularArrayAdapter(MainActivity.this, WeaponNameList, drawer_layout));
+        weapon_list.setDivider(ContextCompat.getDrawable(MainActivity.this, R.drawable.list_divider));
+        weapon_list.setDividerHeight(10);
         weapon_list.setSelectionFromTop(CircularArrayAdapter.HALF_MAX_VALUE, 0);
 
         URL = getPreferences(MODE_PRIVATE).getString("connection", "http://10.5.6.140:3000/");
@@ -422,6 +424,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onDrawerOpened(View drawerView) {
         fab.hide();
+//        weapon_list.bringToFront();
+//        drawer_layout.requestLayout();
     }
 
     @Override
@@ -459,5 +463,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        drawer_layout.closeDrawer(GravityCompat.END);
     }
 }

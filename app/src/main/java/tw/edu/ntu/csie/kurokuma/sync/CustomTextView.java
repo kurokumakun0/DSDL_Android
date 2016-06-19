@@ -3,17 +3,16 @@ package tw.edu.ntu.csie.kurokuma.sync;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * Created by tree on 2016/6/15.
  */
-public class CustomTextView extends TextView {
+public class CustomTextView extends TextView{
 
     private static final int MAX_INDENT = 175;
     private static final int MIN_INDENT = 50;
@@ -23,33 +22,48 @@ public class CustomTextView extends TextView {
         super(context);
         super.setTextSize(35f);
         super.setGravity(Gravity.CENTER|Gravity.END);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200);
-        super.setLayoutParams(layoutParams);
+        //LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 150);
+        //super.setLayoutParams(layoutParams);
         super.setTextColor(Color.WHITE);
         super.setSingleLine();
         super.setFocusable(false);
         super.setClickable(false);
         super.setFocusableInTouchMode(false);
-        //super.setBackground(ContextCompat.getDrawable(context, R.drawable.weapon_background));
+        super.setMinHeight(150);
+        super.setBackground(ContextCompat.getDrawable(context, R.drawable.weapon_background));
     }
 
     public CustomTextView(Context context, AttributeSet set) {
         super(context, set);
+        super.setTextSize(35f);
+        super.setGravity(Gravity.CENTER|Gravity.END);
+        super.setSingleLine();
+        super.setFocusable(false);
+        super.setClickable(false);
+        super.setFocusableInTouchMode(false);
+        super.setMinHeight(150);
     }
 
     @Override
     public void onDraw(Canvas canvas){
         canvas.save();
 
-        //int[] position = new int[2];
-        //getLocationOnScreen(position);
+        int[] position = new int[2];
+        getLocationInWindow(position);
         //Rect rect = new Rect();
         //getGlobalVisibleRect(rect);
-
-        float indent = getIndent(getY() + getHeight()/2);
+        //getY() + getHeight()/2
+        float indent = getIndent(position[1] + getHeight()/2);
         //Log.d("indent = " + indent, "Y = " + getY() + ", height = " + getHeight());
         //Part of the magic happens here too
         canvas.translate(-indent, 0);
+//        if( getTextSize() == 25f )  {
+//            //setMinHeight(150);
+//            setPadding(0, 15, 0, 15);
+//        }else   {
+//            //setMinHeight(250);
+//            setPadding(0, 25, 0, 25);
+//        }
         super.onDraw(canvas);
         canvas.restore();
 

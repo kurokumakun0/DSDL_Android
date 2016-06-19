@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tw.edu.ntu.csie.kurokuma.sync.CustomTextView
+<tw.edu.ntu.csie.kurokuma.sync.CustomLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:textColor="@android:color/primary_text_dark"
-    android:textSize="40sp"
-    android:gravity="center"
-    android:id="@+id/cTextview"/>
+    android:gravity="end">
+
+    <!--<tw.edu.ntu.csie.kurokuma.sync.CustomTextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textColor="@android:color/black"-->
+        <!--android:textSize="40sp"-->
+        <!--android:gravity="center"-->
+        <!--android:text="hello"-->
+        <!--android:id="@+id/cTextview"-->
+        <!--/>-->
+    <tw.edu.ntu.csie.kurokuma.sync.CustomImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/icon"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/lightning"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000" />
+</tw.edu.ntu.csie.kurokuma.sync.CustomLinearLayout>
