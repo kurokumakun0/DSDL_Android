@@ -289,7 +289,7 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
                         timer = new Timer(true);
                         timer.schedule(new MyTimerTask(), 80, 80);
                     } else if(message.equals("checkConnect")) {
-                        mSocket.emit("stillConnect", uuid);
+                        mSocket.emit("stillConnect"+magic, uuid);
                     } else if(message.equals("full")) {
                         player = 0;
                         tvPlayer.setText("full");
