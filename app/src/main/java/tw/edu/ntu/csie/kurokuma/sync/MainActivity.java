@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public static void Switch_weapon(int Weapon_No)  {
-        mSocket.emit("switch_weapon"+magic, Weapon_No);
+        mSocket.emit("switch_weapon" + magic, Weapon_No);
     }
 
     private Emitter.Listener onRealConnect = new Emitter.Listener() {
