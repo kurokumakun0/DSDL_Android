@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.roger.match.library.MatchTextView;
 
@@ -29,6 +30,7 @@ public class Opening extends AppCompatActivity {
                     main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(main);
                     finish();
+                    Log.d("hello~~", "");
                 }
             }, 4000);
         }

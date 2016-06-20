@@ -78,6 +78,17 @@
             app:pressedTranslationZ="12dp"
             app:backgroundTint="@color/bulletBackground"/>
 
+        <Button
+            android:id="@+id/num_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/black"
+            android:text="enter your hash"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:layout_gravity="end|top" />
+
     </FrameLayout>
 
     <io.codetail.widget.RevealFrameLayout
