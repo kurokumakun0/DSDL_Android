@@ -8,38 +8,24 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -70,6 +56,9 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
     //For player identification
     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     static int player;
+
+    // room id
+    public static String magic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,11 +93,19 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         }catch (URISyntaxException e)   {
             e.printStackTrace();
         }
-        mSocket.on("connectOK", onConnectOK);
-        mSocket.on(uuid, onConnectOK);
-        mSocket.connect();
+        ConnectandWaitforConfirm();
 
         myVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+
+        Button num_btn = (Button) findViewById(R.id.num_btn);
+        if( num_btn != null )   {
+            num_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    type_number();
+                }
+            });
+        }
 
         tv = (TextView) findViewById(R.id.sensorValue);
         tvPlayer= (TextView) findViewById(R.id.player);
@@ -145,9 +142,12 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
                             mSocket.disconnect();
                             mSocket.off("connectOK", onConnectOK);
                             mSocket.off(uuid, onConnectOK);
+                            if( magic.length() > 0 )    {
+                                mSocket.off("connectOK"+magic, onRealConnect);
+                                mSocket.on("connectOK"+magic, onRealConnect);
+                            }
 
-                            mSocket.on("connectOK", onConnectOK);
-                            mSocket.on(uuid, onConnectOK);
+                            mSocket.once("connectOK", onConnectOK);
                             mSocket.connect();
 
                             dialog.dismiss();
@@ -178,9 +178,7 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         sManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
 
         if( mSocket != null ) {
-            mSocket.on("connectOK", onConnectOK);
-            mSocket.on(uuid, onConnectOK);
-            mSocket.connect();
+            ConnectandWaitforConfirm();
         }
     }
 
@@ -190,9 +188,14 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         if( timer != null ) {
             timer.cancel();
         }
-        mSocket.disconnect();
-        mSocket.off("connectOK", onConnectOK);
-        mSocket.off(uuid, onConnectOK);
+        if( mSocket != null )   {
+            mSocket.disconnect();
+            mSocket.off("connectOK", onConnectOK);
+            mSocket.off(uuid, onConnectOK);
+            if( magic.length() > 0 )    {
+                mSocket.off("connectOK"+magic, onRealConnect);
+            }
+        }
     }
 
     @Override
@@ -207,6 +210,9 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
             }
             mSocket.off("connectOK", onConnectOK);
             mSocket.off(uuid, onConnectOK);
+            if( magic.length() > 0 )    {
+                mSocket.off("connectOK"+magic, onRealConnect);
+            }
         }
     }
 
@@ -255,25 +261,24 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         //mSocket.emit("message", message);
         switch (player) {
             case 1:
-                mSocket.emit("message1", message);
+                mSocket.emit("message1"+magic, message);
                 break;
             case 2:
-                mSocket.emit("message2", message);
+                mSocket.emit("message2"+magic, message);
                 break;
         }
     }
 
-    private Emitter.Listener onConnectOK = new Emitter.Listener() {
+    // unique listener
+    private Emitter.Listener onRealConnect = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            MultipleActivity.this.runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     String message = (String)args[0];
 
-                    if (message.equals("OK")) {
-                        mSocket.emit("requestPlayer", uuid);
-                    } else if(message.equals("player1")) {
+                    if(message.equals("player1")) {
                         player = 1;
                         tvPlayer.setText("Player1");
                     } else if(message.equals("player2")) {
@@ -312,6 +317,25 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         }
     };
 
+    private Emitter.Listener onConnectOK = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            MultipleActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String message = (String)args[0];
+
+                    if (message.equals("OK")) {
+                        setRealConnectListener();
+                        mSocket.emit("requestPlayer"+magic, uuid);
+                    } else if( message.equals("Failed") )   {
+                        Toast.makeText(MultipleActivity.this, "connect failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    };
+
     public void playSound(int num){
         AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         float curVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -330,12 +354,12 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         {
             switch (player) {
                 case 1:
-                    mSocket.emit("X1", ZYXvalue[2]);
-                    mSocket.emit("Y1", ZYXvalue[1]);
+                    mSocket.emit("X1"+magic, ZYXvalue[2]);
+                    mSocket.emit("Y1"+magic, ZYXvalue[1]);
                     break;
                 case 2:
-                    mSocket.emit("X2", ZYXvalue[2]);
-                    mSocket.emit("Y2", ZYXvalue[1]);
+                    mSocket.emit("X2"+magic, ZYXvalue[2]);
+                    mSocket.emit("Y2"+magic, ZYXvalue[1]);
                     break;
             }
             //mSocket.emit("X", ZYXvalue[2]);
@@ -348,5 +372,43 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         Utils.full_screen_mode(getWindow().getDecorView());
+    }
+
+    public void type_number()   {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MultipleActivity.this);
+        builder.setTitle("enter your magic hash");
+
+        // Set up the input
+        final EditText input = new EditText(MultipleActivity.this);
+        // Specify the type of input expected;
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                magic = input.getText().toString();
+                mSocket.emit("magic", magic);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void ConnectandWaitforConfirm()    {
+        mSocket.once("connectOK", onConnectOK);
+        mSocket.connect();
+    }
+
+    public void setRealConnectListener()   {
+        mSocket.on("connectOK"+magic, onRealConnect);
+        mSocket.on(uuid, onRealConnect);
     }
 }
