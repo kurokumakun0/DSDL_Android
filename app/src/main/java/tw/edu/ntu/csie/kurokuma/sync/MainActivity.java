@@ -88,9 +88,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // weapon list related
     ListView weapon_list;
     List<String> weapon_array = new ArrayList<>();
-    String[] WeaponNameList = new String[] {"Bullet", "Ray", "Lightning", "Ultimate"};
+    String[] WeaponNameList = new String[] {"Bullet", "Ray", "Lightning"};
     public static DrawerLayout drawer_layout;
     FloatingActionButton fab;
+    public static int CurrentWeapon = 0;
+    public int[] weapon_soundPool = new int[]{
+            4,
+            1,
+            5
+    };
 
     // confirm related
     boolean magic_match = false;
@@ -109,13 +115,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         soundPoolMap.put(1, soundPool.load(this, R.raw.shoot, 1));
         soundPoolMap.put(2, soundPool.load(this, R.raw.hurt, 1));
         soundPoolMap.put(3, soundPool.load(this, R.raw.die, 1));
+        soundPoolMap.put(4, soundPool.load(this, R.raw.bullet_sound, 1));
+        soundPoolMap.put(5, soundPool.load(this, R.raw.lightning_sound, 1));
 
         View mContentView = findViewById(R.id.fullscreen_content);
         if( mContentView != null )
             mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playSound(1);
+                playSound(weapon_soundPool[CurrentWeapon]);
                 attemptSend(view);
             }
         });
@@ -295,6 +303,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         
         if( mSocket != null ) {
             ConnectandWaitforConfirm();
+            if( magic.length() > 0 )    {
+                setRealConnectListener();
+            }
         }
 
         if( isRunning )
@@ -388,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public static void Switch_weapon(int Weapon_No)  {
         mSocket.emit("switch_weapon"+magic, Weapon_No);
+        CurrentWeapon = Weapon_No;
     }
 
     private Emitter.Listener onRealConnect = new Emitter.Listener() {

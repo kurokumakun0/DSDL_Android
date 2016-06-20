@@ -58,7 +58,7 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
     static int player;
 
     // room id
-    public static String magic;
+    public static String magic = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

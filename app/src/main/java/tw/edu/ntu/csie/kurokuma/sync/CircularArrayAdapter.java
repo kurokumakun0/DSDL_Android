@@ -25,9 +25,8 @@ public class CircularArrayAdapter extends ArrayAdapter<String> {
     private LayoutInflater mInflater;
     private int[] icon_resourceID = new int[] {
             R.drawable.cus_bullet,
-            R.drawable.ray,
-            R.drawable.lightning,
-            R.drawable.ultimate
+            R.drawable.uv_icon,
+            R.drawable.lightning
     };
 
     public CircularArrayAdapter(Context context, String[] objects, DrawerLayout drawerLayout)
