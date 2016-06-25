@@ -18,6 +18,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -39,7 +40,6 @@ import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ViewGroup container;
 
     SoundPool soundPool;
-    HashMap<Integer, Integer> soundPoolMap;
+    SparseIntArray soundPoolMap;
 
     // about shining Bomb button
     ImageSwitcher imageSwitcher;
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Utils.full_screen_mode(getWindow().getDecorView());
 
         soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 100);
-        soundPoolMap = new HashMap<Integer, Integer>();
+        soundPoolMap = new SparseIntArray();
         soundPoolMap.put(1, soundPool.load(this, R.raw.shoot, 1));
         soundPoolMap.put(2, soundPool.load(this, R.raw.hurt, 1));
         soundPoolMap.put(3, soundPool.load(this, R.raw.die, 1));
@@ -175,13 +175,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
         }
 
-        try {
-            mSocket = IO.socket(URL);
-        }catch (URISyntaxException e)   {
-            e.printStackTrace();
-        }
+        if( mSocket == null ) {
+            try {
+                mSocket = IO.socket(URL);
+            }catch (URISyntaxException e)   {
+                e.printStackTrace();
+            }
 
-        ConnectandWaitforConfirm();
+            ConnectandWaitforConfirm();
+        }
 
         myVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
 
@@ -216,11 +218,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 e.printStackTrace();
                             }
 
-                            mSocket.disconnect();
-                            mSocket.off("connectOK", onConnectOK);
+                            if( mSocket.connected() )
+                                mSocket.disconnect();
+                            if( mSocket.hasListeners("connectOK") )
+                                mSocket.off("connectOK", onConnectOK);
 
                             ConnectandWaitforConfirm();
-
                             dialog.dismiss();
                         }
                     });
@@ -551,6 +554,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 magic = input.getText().toString();
+
                 mSocket.emit("magic", magic);
                 dialog.dismiss();
             }

@@ -133,23 +133,6 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
                             URL = input.getText().toString();
                             URL_button.setText(URL);
                             getPreferences(MODE_PRIVATE).edit().putString("connection", URL).apply();
-                            try {
-                                mSocket = IO.socket(URL);
-                            }catch (URISyntaxException e)   {
-                                e.printStackTrace();
-                            }
-
-                            mSocket.disconnect();
-                            mSocket.off("connectOK", onConnectOK);
-                            mSocket.off(uuid, onConnectOK);
-                            if( magic.length() > 0 )    {
-                                mSocket.off("connectOK"+magic, onRealConnect);
-                                mSocket.on("connectOK"+magic, onRealConnect);
-                            }
-
-                            mSocket.once("connectOK", onConnectOK);
-                            mSocket.connect();
-
                             dialog.dismiss();
                         }
                     });
@@ -191,7 +174,7 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         if( mSocket != null )   {
             mSocket.disconnect();
             mSocket.off("connectOK", onConnectOK);
-            mSocket.off(uuid, onConnectOK);
+            mSocket.off(uuid, onRealConnect);
             if( magic.length() > 0 )    {
                 mSocket.off("connectOK"+magic, onRealConnect);
             }
@@ -245,11 +228,6 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
         //tv.setText("Orientation X (Roll) :" + ZYXvalue[2] + "\n" +
         //        "Orientation Y (Pitch) :" + ZYXvalue[1] + "\n" +
         //        "Orientation Z (Yaw) :" + ZYXvalue[0]);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     public void attemptSend(View v) {
@@ -388,6 +366,21 @@ public class MultipleActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 magic = input.getText().toString();
+                try {
+                    mSocket = IO.socket(URL);
+                }catch (URISyntaxException e)   {
+                    e.printStackTrace();
+                }
+
+                mSocket.disconnect();
+                mSocket.off("connectOK", onConnectOK);
+                mSocket.off(uuid, onRealConnect);
+                if( magic.length() > 0 )    {
+                    mSocket.off("connectOK"+magic, onRealConnect);
+                    mSocket.on("connectOK"+magic, onRealConnect);
+                }
+
+                ConnectandWaitforConfirm();
                 mSocket.emit("magic", magic);
                 dialog.dismiss();
             }
